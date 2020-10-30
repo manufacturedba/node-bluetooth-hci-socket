@@ -233,6 +233,8 @@ void BluetoothHciSocket::setFilter(char* data, int length) {
 
 void BluetoothHciSocket::poll() {
   Nan::HandleScope scope;
+  
+  Nan::AsyncResource* async_resource = new Nan::AsyncResource("bluetooth_hci_socket:poll");
 
   int length = 0;
   char data[1024];
@@ -249,7 +251,7 @@ void BluetoothHciSocket::poll() {
       Nan::CopyBuffer(data, length).ToLocalChecked()
     };
 
-    Nan::AsyncResource::runInAsyncScope(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv)
+    async_resource->runInAsyncScope(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
   }
 }
 
@@ -265,7 +267,7 @@ void BluetoothHciSocket::write_(char* data, int length) {
 
 void BluetoothHciSocket::emitErrnoError() {
   Nan::HandleScope scope;
-
+  
   Local<Object> globalObj = Nan::GetCurrentContext()->Global();
   Local<Function> errorConstructor = Local<Function>::Cast(Nan::Get(globalObj, Nan::New("Error").ToLocalChecked()).ToLocalChecked());
 
@@ -280,7 +282,9 @@ void BluetoothHciSocket::emitErrnoError() {
     error
   };
 
-  Nan::MakeCallback(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
+  Nan::AsyncResource* async_resource = new Nan::AsyncResource("bluetooth_hci_socket:emitErrnoError");
+
+  async_resource->runInAsyncScope(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
 }
 
 int BluetoothHciSocket::devIdFor(int* pDevId, bool isUp) {
