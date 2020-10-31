@@ -10,6 +10,7 @@ dist: trusty
 env:
   matrix:
   - NODE_VERSION="14"
+  - NODE_VERSION="10"
 
 before_install:
   - sudo apt-get install build-essential libudev-dev -y
