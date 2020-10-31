@@ -1,3 +1,5 @@
+global.appRoot = __dirname;
+
 var os = require('os');
 
 var platform = os.platform();
